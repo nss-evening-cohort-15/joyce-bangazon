@@ -19,6 +19,8 @@ class OrderView(ViewSet):
             schema=OrderSerializer(many=True)
         )
     })
+    
+    
     def list(self, request):
         """Get a list of the current users orders
         """
@@ -35,6 +37,8 @@ class OrderView(ViewSet):
             schema=MessageSerializer()
         ),
     })
+    
+    
     def destroy(self, request, pk):
         """Delete an order, current user must be associated with the order to be deleted
         """
@@ -44,6 +48,8 @@ class OrderView(ViewSet):
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except Order.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+        
+        
 
     @swagger_auto_schema(method='put', request_body=UpdateOrderSerializer, responses={
         200: openapi.Response(
@@ -55,6 +61,8 @@ class OrderView(ViewSet):
             schema=MessageSerializer()
         ),
     })
+    
+    
     @action(methods=['put'], detail=True)
     def complete(self, request, pk):
         """Complete an order by adding a payment type and completed data
@@ -65,9 +73,11 @@ class OrderView(ViewSet):
                 pk=request.data['paymentTypeId'], customer=request.auth.user)
             order.payment_type = payment_type
             order.completed_on = datetime.now()
+            order.save()
             return Response({'message': "Order Completed"})
         except (Order.DoesNotExist, PaymentType.DoesNotExist) as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
 
     @swagger_auto_schema(
         method='get',
@@ -82,6 +92,8 @@ class OrderView(ViewSet):
             ),
         }
     )
+    
+    
     @action(methods=['get'], detail=False)
     def current(self, request):
         """Get the user's current order"""
