@@ -28,6 +28,8 @@ class ProductView(ViewSet):
             )
         }
     )
+    
+    
     def create(self, request):
         """Create a new product for the current user's store"""
         store = Store.objects.get(seller=request.auth.user)
@@ -63,6 +65,8 @@ class ProductView(ViewSet):
             )
         }
     )
+    
+    
     def update(self, request, pk):
         """Update a product"""
         category = Category.objects.get(pk=request.data['categoryId'])
@@ -93,6 +97,8 @@ class ProductView(ViewSet):
                 schema=MessageSerializer()
             )
         })
+    
+    
     def destroy(self, request, pk):
         """Delete a product"""
         try:
@@ -157,6 +163,8 @@ class ProductView(ViewSet):
             ),
         ]
     )
+    
+    
     def list(self, request):
         """Get a list of all products"""
         products = Product.objects.all()
@@ -250,7 +258,7 @@ class ProductView(ViewSet):
         try:
             product = Product.objects.get(pk=pk)
             order = Order.objects.get(
-                user=request.auth.user, completed_on=None)
+                user__id=request.auth.user.id, completed_on=None)
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except Product.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
