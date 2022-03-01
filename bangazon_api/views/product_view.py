@@ -174,6 +174,7 @@ class ProductView(ViewSet):
         order = request.query_params.get('order_by', None)
         direction = request.query_params.get('direction', None)
         name = request.query_params.get('name', None)
+        min_price = request.query_params.get('min_price', None)
 
         if number_sold is not None:
             products = products.annotate(
@@ -189,6 +190,9 @@ class ProductView(ViewSet):
 
         if name is not None:
             products = products.filter(name__icontains=name)
+            
+        if min_price is not None:
+            products = products.filter(price__gte=min_price)
 
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
@@ -216,6 +220,7 @@ class ProductView(ViewSet):
         except Product.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
+
     @swagger_auto_schema(
         method='POST',
         responses={
@@ -240,6 +245,7 @@ class ProductView(ViewSet):
             return Response({'message': 'product added'}, status=status.HTTP_201_CREATED)
         except Product.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
 
     @swagger_auto_schema(
         method='DELETE',
@@ -268,6 +274,7 @@ class ProductView(ViewSet):
         
         except Order.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
 
     @swagger_auto_schema(
         method='DELETE',
@@ -324,6 +331,7 @@ class ProductView(ViewSet):
             recommendation.delete()
 
             return Response(None, status=status.HTTP_204_NO_CONTENT)
+
 
     @swagger_auto_schema(
         method='POST',
